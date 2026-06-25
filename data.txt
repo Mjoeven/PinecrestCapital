@@ -1,24 +1,23 @@
 # Pinecrest Capital — track record data
-# ---------------------------------------------------------------
-# One line per trading day:   YYYY-MM-DD, value
-#   - date:  the trading day
-#   - value: net cumulative performance in percent (100 = inception)
-# Lines starting with "#" are ignored — use them for your own notes.
+# ===============================================================
+# DOLLAR MODE — enter your daily profit/loss in $ and the app
+# turns it into the % track record. Your budget and dollar
+# amounts are NEVER shown in the app, only the percentage.
 #
-# HOW TO USE:
-#   1. Rename this file to exactly  data.txt
-#   2. Replace the rows below with your real daily values
-#   3. Upload data.txt into the SAME GitHub repo as index.html
-#   4. Commit. The app loads it automatically and removes the
-#      "illustrative sample data" notice.
-#   To update later: edit data.txt, add new rows, commit. Done.
-# ---------------------------------------------------------------
-2026-07-01, 100.00
-2026-07-02, 100.42
-2026-07-03, 100.18
-2026-07-04, 102.82
-2026-07-05, 101.28
-2026-07-31, 103.21
-2026-07-33, 102.00
-2026-08-01, 103.00
-2026-08-02, 104.00
+# 1) Set your starting budget on the "capital" line below.
+# 2) One line per trading day:  YYYY-MM-DD, profit-or-loss
+#       - a gain is a positive number:     23200
+#       - a loss uses a minus sign:        -8400
+#       - thousands separators are fine:   23,200
+# 3) Keep the first line (inception) at 0 so the curve starts at 100%.
+#
+# ===============================================================
+# capital: 532000
+#
+2026-07-01, 0
+2026-07-02, 23200
+2026-07-03, -8400
+2026-07-04, 21200
+2026-08-05, 0
+2026-08-06, 0
+2026-08-09, -21000
