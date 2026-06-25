@@ -1427,7 +1427,7 @@ window.PerformanceChart = PerformanceChart;
 /* app.jsx */
 /* Pinecrest Capital — app shell: access gate + track-record dashboard */
 
-const ACCESS_CODE = 'PINECREST26'; // ← the code you share with LPs personally
+const ACCESS_CODE = 'pine'; // ← the code you share with LPs personally
 const ACCENT = '#3ECF8E';
 const UP = ACCENT,
   DOWN = '#F2606B';
@@ -1665,7 +1665,7 @@ function Dashboard({
   const ath = window.PCC.maxValue();
   const mdd = window.PCC.maxDrawdown();
   const vol = window.PCC.volatility();
-  const inceptionLabel = new Date(window.PCC.INCEPTION).toLocaleDateString('en-US', {
+  const inceptionLabel = new Date(window.PCC.inception().t).toLocaleDateString('en-US', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
