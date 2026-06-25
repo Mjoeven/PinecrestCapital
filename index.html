@@ -366,6 +366,21 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
             2026-07-01, 100.00
             2026-07-02, 100.42
 
+     ── OPTIONAL: QQQ BENCHMARK — add a "# benchmark:" line and a THIRD column
+        with QQQ's closing price each day. The app indexes QQQ to 100% on your
+        first day and draws it as a faint second line, plus an "alpha" stat
+        (how far you're beating it). Example:
+
+            # capital: 532000
+            # benchmark: QQQ
+            2026-07-01, 0, 540.12
+            2026-07-02, 23200, 543.40
+            2026-07-03, -8400, 541.05
+
+        (third number = QQQ close that day). Leave the benchmark line out and
+        the app just shows your single curve as before. NOTE: when you use a
+        benchmark column, write plain P&L numbers (16845, not 16,845).
+
      Lines starting with #  are ignored (use them for notes).
      Commit the file — the app loads it automatically and hides the
      "sample data" notice. Edit data.txt anytime to update the chart.
@@ -420,45 +435,80 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
   }
 
   // ---- live state ----------------------------------------------------------
-  const state = { points: buildSampleSeries(), sample: true };
+  const state = { points: buildSampleSeries(), sample: true, benchLabel: null };
 
   // ---- parse data.txt — supports DOLLAR mode (# capital: N) and PERCENT mode -
   function parseText(txt) {
     const lines = (txt || '').split(/\r?\n/);
 
-    // directive pass: starting budget → switches to dollar mode
+    // directive pass: starting budget → dollar mode; benchmark label → overlay
     let capital = null;
+    let benchLabel = null;
     for (const line of lines) {
-      const m = line.trim().match(/^#\s*capital\s*[:=]\s*(.+)$/i);
-      if (m) {
-        const n = parseFloat(m[1].replace(/[^0-9.]/g, ''));
+      const mc = line.trim().match(/^#\s*capital\s*[:=]\s*(.+)$/i);
+      if (mc) {
+        const n = parseFloat(mc[1].replace(/[^0-9.]/g, ''));
         if (isFinite(n) && n > 0) capital = n;
       }
+      const mb = line.trim().match(/^#\s*benchmark\s*[:=]\s*(.+)$/i);
+      if (mb && mb[1].trim()) benchLabel = mb[1].trim();
     }
 
-    // row pass: "date, number" — split on the FIRST separator only, so dollar
-    // amounts that contain thousands-commas (23,200) survive intact.
+    // row pass: each row MUST start with a strict ISO date (YYYY-MM-DD),
+    // then a separator, then the number. Anything else is skipped (so a typo
+    // like "2026-02,24" can't silently corrupt the curve — it's ignored and
+    // logged instead). Thousands separators in the number (23,200 / 23'200)
+    // survive because everything after the date is stripped to digits.
     const rows = [];
     for (const line of lines) {
       const s = line.trim();
       if (!s || s[0] === '#') continue;
-      const i = s.search(/[,;\t]/);
-      if (i < 0) continue;
-      const t = Date.parse(s.slice(0, i).trim() + 'T00:00:00Z');
-      const num = parseFloat(s.slice(i + 1).replace(/[^0-9.\-]/g, ''));
-      if (!isNaN(t) && isFinite(num)) rows.push({ t, num });
+      const m = s.match(/^(\d{4})-(\d{2})-(\d{2})\s*[,;\t]\s*(.+)$/);
+      if (!m) {
+        if (typeof console !== 'undefined') console.warn('Pinecrest: skipped malformed line →', JSON.stringify(line));
+        continue;
+      }
+      const t = Date.UTC(+m[1], +m[2] - 1, +m[3]);
+      // split the remainder into fields. With a benchmark, the LAST field is
+      // the QQQ price and everything before it is the P&L value (so thousands
+      // commas in the value still collapse correctly).
+      const parts = m[4].split(/[,;\t]/).map(x => x.trim()).filter(x => x.length);
+      let valStr, benchStr = null;
+      if (benchLabel && parts.length >= 2) {
+        benchStr = parts[parts.length - 1];
+        valStr = parts.slice(0, -1).join('');
+      } else {
+        valStr = parts.join('');
+      }
+      const num = parseFloat(valStr.replace(/[^0-9.\-]/g, ''));
+      const bench = benchStr != null ? parseFloat(benchStr.replace(/[^0-9.\-]/g, '')) : null;
+      if (isFinite(t) && isFinite(num)) rows.push({ t, num, bench: isFinite(bench) ? bench : null });
     }
     rows.sort((a, b) => a.t - b.t);
+
+    // benchmark base = first available QQQ price (indexes the overlay to 100%)
+    let benchBase = null;
+    for (const r of rows) { if (r.bench != null) { benchBase = r.bench; break; } }
 
     const pts = [];
     if (capital) {
       // dollar mode: num = that day's profit/loss; accumulate from the budget
       let equity = capital;
-      for (const r of rows) { equity += r.num; pts.push({ t: r.t, v: equity / capital * 100 }); }
+      for (const r of rows) {
+        equity += r.num;
+        const p = { t: r.t, v: equity / capital * 100 };
+        if (benchBase != null && r.bench != null) p.b = r.bench / benchBase * 100;
+        pts.push(p);
+      }
     } else {
       // percent mode: num = the day's percentage value
-      for (const r of rows) pts.push({ t: r.t, v: r.num });
+      for (const r of rows) {
+        const p = { t: r.t, v: r.num };
+        if (benchBase != null && r.bench != null) p.b = r.bench / benchBase * 100;
+        pts.push(p);
+      }
     }
+    state.benchLabel = (benchBase != null) ? benchLabel : null;
     return pts;
   }
 
@@ -494,6 +544,63 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     const varr = rets.reduce((a, b) => a + (b - mean) ** 2, 0) / rets.length;
     return Math.sqrt(varr) * Math.sqrt(252) * 100;
   }
+  // most recent day in the data
+  function lastUpdated() { const l = latest(); return l ? l.t : null; }
+
+  // daily percentage changes between consecutive trading days
+  function dailyChanges() {
+    const pts = P(); const out = [];
+    for (let i = 1; i < pts.length; i++) out.push((pts[i].v / pts[i - 1].v - 1) * 100);
+    return out;
+  }
+  function bestDay() { const d = dailyChanges(); return d.length ? Math.max(...d) : 0; }
+  function worstDay() { const d = dailyChanges(); return d.length ? Math.min(...d) : 0; }
+  function winRate() {
+    const d = dailyChanges(); if (!d.length) return 0;
+    return d.filter(x => x > 0).length / d.length * 100;
+  }
+
+  // benchmark accessors
+  function benchLabel() { return state.benchLabel; }
+  function hasBenchmark() {
+    return state.benchLabel != null && P().some(p => p.b != null);
+  }
+  function benchLatest() {
+    const pts = P();
+    for (let i = pts.length - 1; i >= 0; i--) if (pts[i].b != null) return pts[i].b;
+    return null;
+  }
+  // alpha = fund's cumulative % minus QQQ's cumulative % (both indexed to 100)
+  function alpha() {
+    const b = benchLatest(); const l = latest();
+    if (b == null || !l) return null;
+    return l.v - b;
+  }
+
+  // month-by-month returns: end-of-month equity vs end of previous month
+  function monthlyReturns() {
+    const pts = P(); if (!pts.length) return [];
+    const byMonth = new Map();
+    for (const p of pts) {
+      const d = new Date(p.t);
+      const ym = d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0');
+      byMonth.set(ym, p.v); // sorted ascending → last write = month's final value
+    }
+    const out = [];
+    let prev = 100; // inception baseline
+    for (const [ym, v] of byMonth) {
+      const d = new Date(ym + '-01T00:00:00Z');
+      out.push({
+        ym,
+        label: d.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }),
+        year: d.getUTCFullYear(),
+        ret: (v / prev - 1) * 100,
+      });
+      prev = v;
+    }
+    return out;
+  }
+
   function slice(rangeKey) {
     const pts = P();
     if (pts.length < 2) return pts.slice();
@@ -512,6 +619,8 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     get SAMPLE() { return state.sample; },
     parseText, load,
     latest, inception, maxValue, maxDrawdown, volatility, slice,
+    lastUpdated, bestDay, worstDay, winRate, monthlyReturns,
+    benchLabel, hasBenchmark, benchLatest, alpha,
   };
 })();
 
@@ -1220,9 +1329,14 @@ function PerformanceChart({
     return () => ro.disconnect();
   }, []);
   const n = data.length;
-  const vals = data.map(p => p.v);
-  let min = Math.min(...vals, 100);
-  let max = Math.max(...vals, 100);
+  const hasBench = data.some(p => p.b != null);
+  const allV = [];
+  data.forEach(p => {
+    allV.push(p.v);
+    if (p.b != null) allV.push(p.b);
+  });
+  let min = Math.min(...allV, 100);
+  let max = Math.max(...allV, 100);
   const span = Math.max(max - min, 1);
   min -= span * 0.16;
   max += span * 0.16;
@@ -1240,6 +1354,17 @@ function PerformanceChart({
     linePath += i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
   });
   areaPath = linePath + ` L ${xFor(n - 1)} ${padT + innerH} L ${xFor(0)} ${padT + innerH} Z`;
+
+  // benchmark (QQQ) path — only across points that carry a benchmark value
+  let benchPath = '',
+    benchStarted = false;
+  data.forEach((p, i) => {
+    if (p.b == null) return;
+    const x = xFor(i),
+      y = yFor(p.b);
+    benchPath += !benchStarted ? `M ${x} ${y}` : ` L ${x} ${y}`;
+    benchStarted = true;
+  });
 
   // draw-in animation, re-run when the data slice changes
   React.useEffect(() => {
@@ -1352,6 +1477,14 @@ function PerformanceChart({
     d: areaPath,
     fill: `url(#${gradId})`,
     stroke: "none"
+  }), hasBench && benchPath && /*#__PURE__*/React.createElement("path", {
+    d: benchPath,
+    fill: "none",
+    stroke: "rgba(255,255,255,0.40)",
+    strokeWidth: "1.5",
+    strokeLinejoin: "round",
+    strokeLinecap: "round",
+    strokeDasharray: "1 5"
   }), /*#__PURE__*/React.createElement("path", {
     ref: pathRef,
     d: linePath,
@@ -1385,6 +1518,13 @@ function PerformanceChart({
     y2: padT + innerH,
     stroke: "rgba(255,255,255,0.28)",
     strokeWidth: "1"
+  }), data[active].b != null && /*#__PURE__*/React.createElement("circle", {
+    cx: xFor(active),
+    cy: yFor(data[active].b),
+    r: "3.5",
+    fill: "#0a0a0a",
+    stroke: "rgba(255,255,255,0.6)",
+    strokeWidth: "1.5"
   }), /*#__PURE__*/React.createElement("circle", {
     cx: xFor(active),
     cy: yFor(data[active].v),
@@ -1396,21 +1536,27 @@ function PerformanceChart({
     style: {
       position: 'absolute',
       top: -2,
-      left: Math.max(4, Math.min(W - 132, xFor(active) - 66)),
-      width: 132,
+      left: Math.max(4, Math.min(W - 210, xFor(active) - 105)),
+      width: 210,
       pointerEvents: 'none',
       textAlign: 'center',
       fontFamily: 'var(--mono)',
       fontSize: 11,
       color: 'rgba(255,255,255,0.92)',
-      letterSpacing: 0.2
+      letterSpacing: 0.2,
+      whiteSpace: 'nowrap'
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       color: accent,
       fontWeight: 500
     }
-  }, data[active].v.toFixed(2), "%"), /*#__PURE__*/React.createElement("span", {
+  }, data[active].v.toFixed(2), "%"), data[active].b != null && /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: 'rgba(255,255,255,0.55)',
+      marginLeft: 8
+    }
+  }, "QQQ ", data[active].b.toFixed(2), "%"), /*#__PURE__*/React.createElement("span", {
     style: {
       color: 'rgba(255,255,255,0.4)',
       marginLeft: 8
@@ -1665,6 +1811,21 @@ function Dashboard({
   const ath = window.PCC.maxValue();
   const mdd = window.PCC.maxDrawdown();
   const vol = window.PCC.volatility();
+  const bestDay = window.PCC.bestDay();
+  const worstDay = window.PCC.worstDay();
+  const winRate = window.PCC.winRate();
+  const months = window.PCC.monthlyReturns();
+  const hasBench = window.PCC.hasBenchmark();
+  const benchName = window.PCC.benchLabel() || 'QQQ';
+  const benchVal = window.PCC.benchLatest();
+  const alpha = window.PCC.alpha();
+  const lu = window.PCC.lastUpdated();
+  const updatedLabel = lu ? new Date(lu).toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC'
+  }) : null;
   const inceptionLabel = new Date(window.PCC.inception().t).toLocaleDateString('en-US', {
     day: 'numeric',
     month: 'short',
@@ -1796,7 +1957,26 @@ function Dashboard({
     month: 'short',
     year: 'numeric',
     timeZone: 'UTC'
-  }) : `since inception · ${inceptionLabel}`))), /*#__PURE__*/React.createElement("div", {
+  }) : `since inception · ${inceptionLabel}`)), !scrubbing && updatedLabel && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8,
+      fontFamily: 'var(--mono)',
+      fontSize: 10,
+      letterSpacing: 0.4,
+      color: 'rgba(255,255,255,0.32)',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 5,
+      height: 5,
+      borderRadius: 5,
+      background: UP,
+      display: 'inline-block'
+    }
+  }), "As of ", updatedLabel)), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 22,
       display: 'flex',
@@ -1834,11 +2014,75 @@ function Dashboard({
     accent: ACCENT,
     activeIdx: activeIdx,
     onScrub: setActiveIdx
-  })), /*#__PURE__*/React.createElement("div", {
+  })), hasBench && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 10,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 12,
+      flexWrap: 'wrap'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 16
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 6,
+      fontFamily: 'var(--mono)',
+      fontSize: 10.5,
+      color: 'rgba(255,255,255,0.75)',
+      letterSpacing: 0.3
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 14,
+      height: 2.5,
+      background: ACCENT,
+      borderRadius: 2,
+      display: 'inline-block'
+    }
+  }), "Pinecrest"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 6,
+      fontFamily: 'var(--mono)',
+      fontSize: 10.5,
+      color: 'rgba(255,255,255,0.5)',
+      letterSpacing: 0.3
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 14,
+      height: 0,
+      borderTop: '2px dotted rgba(255,255,255,0.55)',
+      display: 'inline-block'
+    }
+  }), benchName)), alpha != null && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: 'var(--mono)',
+      fontSize: 10.5,
+      letterSpacing: 0.3,
+      color: 'rgba(255,255,255,0.5)'
+    }
+  }, "alpha\xA0", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: alpha >= 0 ? UP : DOWN,
+      fontWeight: 500
+    }
+  }, alpha >= 0 ? '+' : '', alpha.toFixed(2), "%"))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 22,
-      display: 'flex',
-      gap: 14,
+      display: 'grid',
+      gridTemplateColumns: 'repeat(3, 1fr)',
+      rowGap: 18,
+      columnGap: 14,
       paddingTop: 20,
       borderTop: '1px solid rgba(255,255,255,0.07)'
     }
@@ -1851,10 +2095,73 @@ function Dashboard({
     value: `${mdd.toFixed(2)}%`,
     tone: DOWN
   }), /*#__PURE__*/React.createElement(Stat, {
+    label: "Win rate",
+    value: `${winRate.toFixed(0)}%`,
+    tone: "#f0f0f0"
+  }), /*#__PURE__*/React.createElement(Stat, {
+    label: "Best day",
+    value: `${bestDay >= 0 ? '+' : ''}${bestDay.toFixed(2)}%`,
+    tone: UP
+  }), /*#__PURE__*/React.createElement(Stat, {
+    label: "Worst day",
+    value: `${worstDay.toFixed(2)}%`,
+    tone: DOWN
+  }), /*#__PURE__*/React.createElement(Stat, {
     label: "Volatility (ann.)",
     value: `${vol.toFixed(1)}%`,
     tone: "#f0f0f0"
-  })), /*#__PURE__*/React.createElement("div", {
+  })), months.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 26,
+      paddingTop: 20,
+      borderTop: '1px solid rgba(255,255,255,0.07)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--mono)',
+      fontSize: 9.5,
+      letterSpacing: 0.8,
+      textTransform: 'uppercase',
+      color: 'rgba(255,255,255,0.38)',
+      marginBottom: 12
+    }
+  }, "Monthly returns"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 8,
+      overflowX: 'auto',
+      paddingBottom: 2
+    }
+  }, months.map(m => /*#__PURE__*/React.createElement("div", {
+    key: m.ym,
+    style: {
+      flex: '0 0 auto',
+      minWidth: 58,
+      padding: '10px 12px',
+      background: 'rgba(255,255,255,0.035)',
+      borderRadius: 10,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 5,
+      alignItems: 'flex-start'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: 'var(--mono)',
+      fontSize: 9.5,
+      letterSpacing: 0.5,
+      color: 'rgba(255,255,255,0.45)',
+      textTransform: 'uppercase'
+    }
+  }, m.label), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: 'var(--sans)',
+      fontSize: 14,
+      fontWeight: 600,
+      fontVariantNumeric: 'tabular-nums',
+      color: m.ret >= 0 ? UP : DOWN
+    }
+  }, m.ret >= 0 ? '+' : '', m.ret.toFixed(1), "%"))))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 24,
       marginBottom: 16,
