@@ -1,5 +1,19 @@
+# Pinecrest Capital — track record data
+# ---------------------------------------------------------------
+# One line per trading day:   YYYY-MM-DD, value
+#   - date:  the trading day
+#   - value: net cumulative performance in percent (100 = inception)
+# Lines starting with "#" are ignored — use them for your own notes.
+#
+# HOW TO USE:
+#   1. Rename this file to exactly  data.txt
+#   2. Replace the rows below with your real daily values
+#   3. Upload data.txt into the SAME GitHub repo as index.html
+#   4. Commit. The app loads it automatically and removes the
+#      "illustrative sample data" notice.
+#   To update later: edit data.txt, add new rows, commit. Done.
+# ---------------------------------------------------------------
 2026-07-01, 100.00
 2026-07-02, 100.42
-# simple note
-2026-07-03, 100.82
+2026-07-03, 100.18
 2026-07-04, 92.82
