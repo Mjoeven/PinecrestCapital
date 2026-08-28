@@ -602,391 +602,30 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
 })();
   </script>
   <script>
+/* ============================================================================
+   Pinecrest Capital — app shell, chart and screens
+   ----------------------------------------------------------------------------
+   Contains, in order:
+     1. IOSDevice        — the phone-shaped frame the app sits in
+     2. PerformanceChart — the interactive curve
+     3. Mark / Stat      — small shared pieces
+     4. LockScreen       — access-code gate
+     5. Dashboard        — the track record
+     6. NoData           — shown when data.txt is missing or unreadable
+     7. App + mount
+   ========================================================================== */
 
-/* ios-frame.jsx */
-// @ds-adherence-ignore -- omelette starter scaffold (raw elements/hex/px by design)
-
-/* BEGIN USAGE */
-// iOS.jsx — Simplified iOS 26 (Liquid Glass) device frame
-// Based on the iOS 26 UI Kit + Figma status bar spec. No assets, no deps.
-// Exports (to window): IOSDevice, IOSStatusBar, IOSNavBar, IOSGlassPill, IOSList, IOSListRow, IOSKeyboard
-//
-// Usage — wrap your screen content in <IOSDevice> to get the bezel, status bar
-// and home indicator (props: title, dark, keyboard):
-//
-//   <IOSDevice title="Settings">
-//     ...your screen content...
-//   </IOSDevice>
-//   <IOSDevice dark title="Search" keyboard>…</IOSDevice>
-/* END USAGE */
-
-// ─────────────────────────────────────────────────────────────
-// Status bar
-// ─────────────────────────────────────────────────────────────
-function IOSStatusBar({
-  dark = false,
-  time = '9:41'
-}) {
-  const c = dark ? '#fff' : '#000';
-  return /*#__PURE__*/React.createElement("div", {
+/* ─────────────────────────────────────────────────────────────
+   1. Device frame
+   The original file also carried IOSStatusBar / IOSNavBar / IOSList /
+   IOSKeyboard from the UI-kit starter. None of them were ever rendered
+   (the app runs the frame with bare={true} and no title), so they have
+   been removed. Same look, far less code to read past.
+   ───────────────────────────────────────────────────────────── */
+function IOSDevice({ children, width = 402, height = 874, dark = false }) {
+  return React.createElement("div", {
     style: {
-      display: 'flex',
-      gap: 154,
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '21px 24px 19px',
-      boxSizing: 'border-box',
-      position: 'relative',
-      zIndex: 20,
-      width: '100%'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      height: 22,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingTop: 1.5
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: '-apple-system, "SF Pro", system-ui',
-      fontWeight: 590,
-      fontSize: 17,
-      lineHeight: '22px',
-      color: c
-    }
-  }, time)), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      height: 22,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 7,
-      paddingTop: 1,
-      paddingRight: 1
-    }
-  }, /*#__PURE__*/React.createElement("svg", {
-    width: "19",
-    height: "12",
-    viewBox: "0 0 19 12"
-  }, /*#__PURE__*/React.createElement("rect", {
-    x: "0",
-    y: "7.5",
-    width: "3.2",
-    height: "4.5",
-    rx: "0.7",
-    fill: c
-  }), /*#__PURE__*/React.createElement("rect", {
-    x: "4.8",
-    y: "5",
-    width: "3.2",
-    height: "7",
-    rx: "0.7",
-    fill: c
-  }), /*#__PURE__*/React.createElement("rect", {
-    x: "9.6",
-    y: "2.5",
-    width: "3.2",
-    height: "9.5",
-    rx: "0.7",
-    fill: c
-  }), /*#__PURE__*/React.createElement("rect", {
-    x: "14.4",
-    y: "0",
-    width: "3.2",
-    height: "12",
-    rx: "0.7",
-    fill: c
-  })), /*#__PURE__*/React.createElement("svg", {
-    width: "17",
-    height: "12",
-    viewBox: "0 0 17 12"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M8.5 3.2C10.8 3.2 12.9 4.1 14.4 5.6L15.5 4.5C13.7 2.7 11.2 1.5 8.5 1.5C5.8 1.5 3.3 2.7 1.5 4.5L2.6 5.6C4.1 4.1 6.2 3.2 8.5 3.2Z",
-    fill: c
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M8.5 6.8C9.9 6.8 11.1 7.3 12 8.2L13.1 7.1C11.8 5.9 10.2 5.1 8.5 5.1C6.8 5.1 5.2 5.9 3.9 7.1L5 8.2C5.9 7.3 7.1 6.8 8.5 6.8Z",
-    fill: c
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: "8.5",
-    cy: "10.5",
-    r: "1.5",
-    fill: c
-  })), /*#__PURE__*/React.createElement("svg", {
-    width: "27",
-    height: "13",
-    viewBox: "0 0 27 13"
-  }, /*#__PURE__*/React.createElement("rect", {
-    x: "0.5",
-    y: "0.5",
-    width: "23",
-    height: "12",
-    rx: "3.5",
-    stroke: c,
-    strokeOpacity: "0.35",
-    fill: "none"
-  }), /*#__PURE__*/React.createElement("rect", {
-    x: "2",
-    y: "2",
-    width: "20",
-    height: "9",
-    rx: "2",
-    fill: c
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M25 4.5V8.5C25.8 8.2 26.5 7.2 26.5 6.5C26.5 5.8 25.8 4.8 25 4.5Z",
-    fill: c,
-    fillOpacity: "0.4"
-  }))));
-}
-
-// ─────────────────────────────────────────────────────────────
-// Liquid glass pill — blur + tint + shine
-// ─────────────────────────────────────────────────────────────
-function IOSGlassPill({
-  children,
-  dark = false,
-  style = {}
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: 44,
-      minWidth: 44,
-      borderRadius: 9999,
-      position: 'relative',
-      overflow: 'hidden',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      boxShadow: dark ? '0 2px 6px rgba(0,0,0,0.35), 0 6px 16px rgba(0,0,0,0.2)' : '0 1px 3px rgba(0,0,0,0.07), 0 3px 10px rgba(0,0,0,0.06)',
-      ...style
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      inset: 0,
-      borderRadius: 9999,
-      backdropFilter: 'blur(12px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(12px) saturate(180%)',
-      background: dark ? 'rgba(120,120,128,0.28)' : 'rgba(255,255,255,0.5)'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      inset: 0,
-      borderRadius: 9999,
-      boxShadow: dark ? 'inset 1.5px 1.5px 1px rgba(255,255,255,0.15), inset -1px -1px 1px rgba(255,255,255,0.08)' : 'inset 1.5px 1.5px 1px rgba(255,255,255,0.7), inset -1px -1px 1px rgba(255,255,255,0.4)',
-      border: dark ? '0.5px solid rgba(255,255,255,0.15)' : '0.5px solid rgba(0,0,0,0.06)'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'relative',
-      zIndex: 1,
-      display: 'flex',
-      alignItems: 'center',
-      padding: '0 4px'
-    }
-  }, children));
-}
-
-// ─────────────────────────────────────────────────────────────
-// Navigation bar — glass pills + large title
-// ─────────────────────────────────────────────────────────────
-function IOSNavBar({
-  title = 'Title',
-  dark = false,
-  trailingIcon = true
-}) {
-  const muted = dark ? 'rgba(255,255,255,0.6)' : '#404040';
-  const text = dark ? '#fff' : '#000';
-  const pillIcon = content => /*#__PURE__*/React.createElement(IOSGlassPill, {
-    dark: dark
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 36,
-      height: 36,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }
-  }, content));
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 10,
-      paddingTop: 62,
-      paddingBottom: 10,
-      position: 'relative',
-      zIndex: 5
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0 16px'
-    }
-  }, pillIcon(/*#__PURE__*/React.createElement("svg", {
-    width: "12",
-    height: "20",
-    viewBox: "0 0 12 20",
-    fill: "none",
-    style: {
-      marginLeft: -1
-    }
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M10 2L2 10l8 8",
-    stroke: muted,
-    strokeWidth: "2.5",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }))), trailingIcon && pillIcon(/*#__PURE__*/React.createElement("svg", {
-    width: "22",
-    height: "6",
-    viewBox: "0 0 22 6"
-  }, /*#__PURE__*/React.createElement("circle", {
-    cx: "3",
-    cy: "3",
-    r: "2.5",
-    fill: muted
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: "11",
-    cy: "3",
-    r: "2.5",
-    fill: muted
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: "19",
-    cy: "3",
-    r: "2.5",
-    fill: muted
-  })))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '0 16px',
-      fontFamily: '-apple-system, system-ui',
-      fontSize: 34,
-      fontWeight: 700,
-      lineHeight: '41px',
-      color: text,
-      letterSpacing: 0.4
-    }
-  }, title));
-}
-
-// ─────────────────────────────────────────────────────────────
-// Grouped list (inset card, r:26) + row (52px)
-// ─────────────────────────────────────────────────────────────
-function IOSListRow({
-  title,
-  detail,
-  icon,
-  chevron = true,
-  isLast = false,
-  dark = false
-}) {
-  const text = dark ? '#fff' : '#000';
-  const sec = dark ? 'rgba(235,235,245,0.6)' : 'rgba(60,60,67,0.6)';
-  const ter = dark ? 'rgba(235,235,245,0.3)' : 'rgba(60,60,67,0.3)';
-  const sep = dark ? 'rgba(84,84,88,0.65)' : 'rgba(60,60,67,0.12)';
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      minHeight: 52,
-      padding: '0 16px',
-      position: 'relative',
-      fontFamily: '-apple-system, system-ui',
-      fontSize: 17,
-      letterSpacing: -0.43
-    }
-  }, icon && /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 30,
-      height: 30,
-      borderRadius: 7,
-      background: icon,
-      marginRight: 12,
-      flexShrink: 0
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      color: text
-    }
-  }, title), detail && /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: sec,
-      marginRight: 6
-    }
-  }, detail), chevron && /*#__PURE__*/React.createElement("svg", {
-    width: "8",
-    height: "14",
-    viewBox: "0 0 8 14",
-    style: {
-      flexShrink: 0
-    }
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M1 1l6 6-6 6",
-    stroke: ter,
-    strokeWidth: "2",
-    fill: "none",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  })), !isLast && /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      bottom: 0,
-      right: 0,
-      left: icon ? 58 : 16,
-      height: 0.5,
-      background: sep
-    }
-  }));
-}
-function IOSList({
-  header,
-  children,
-  dark = false
-}) {
-  const hc = dark ? 'rgba(235,235,245,0.6)' : 'rgba(60,60,67,0.6)';
-  const bg = dark ? '#1C1C1E' : '#fff';
-  return /*#__PURE__*/React.createElement("div", null, header && /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: '-apple-system, system-ui',
-      fontSize: 13,
-      color: hc,
-      textTransform: 'uppercase',
-      padding: '8px 36px 6px',
-      letterSpacing: -0.08
-    }
-  }, header), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: bg,
-      borderRadius: 26,
-      margin: '0 16px',
-      overflow: 'hidden'
-    }
-  }, children));
-}
-
-// ─────────────────────────────────────────────────────────────
-// Device frame
-// ─────────────────────────────────────────────────────────────
-function IOSDevice({
-  children,
-  width = 402,
-  height = 874,
-  dark = false,
-  title,
-  keyboard = false,
-  bare = false
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      width,
-      height,
+      width, height,
       borderRadius: 48,
       overflow: 'hidden',
       position: 'relative',
@@ -995,303 +634,27 @@ function IOSDevice({
       fontFamily: '-apple-system, system-ui, sans-serif',
       WebkitFontSmoothing: 'antialiased'
     }
-  }, !bare && /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      top: 11,
-      left: '50%',
-      transform: 'translateX(-50%)',
-      width: 126,
-      height: 37,
-      borderRadius: 24,
-      background: '#000',
-      zIndex: 50
-    }
-  }), !bare && /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 10
-    }
-  }, /*#__PURE__*/React.createElement(IOSStatusBar, {
-    dark: dark
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column'
-    }
-  }, title !== undefined && /*#__PURE__*/React.createElement(IOSNavBar, {
-    title: title,
-    dark: dark
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      overflow: 'auto'
-    }
-  }, children), keyboard && /*#__PURE__*/React.createElement(IOSKeyboard, {
-    dark: dark
-  })), !bare && /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      zIndex: 60,
-      height: 34,
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'flex-end',
-      paddingBottom: 8,
-      pointerEvents: 'none'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 139,
-      height: 5,
-      borderRadius: 100,
-      background: dark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.25)'
-    }
-  })));
+  }, React.createElement("div", {
+    style: { height: '100%', display: 'flex', flexDirection: 'column' }
+  }, React.createElement("div", {
+    style: { flex: 1, overflow: 'auto' }
+  }, children)));
 }
 
-// ─────────────────────────────────────────────────────────────
-// Keyboard — iOS 26 liquid glass
-// ─────────────────────────────────────────────────────────────
-function IOSKeyboard({
-  dark = false
-}) {
-  const glyph = dark ? 'rgba(255,255,255,0.7)' : '#595959';
-  const sugg = dark ? 'rgba(255,255,255,0.6)' : '#333';
-  const keyBg = dark ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.85)';
-
-  // special-key icons
-  const icons = {
-    shift: /*#__PURE__*/React.createElement("svg", {
-      width: "19",
-      height: "17",
-      viewBox: "0 0 19 17"
-    }, /*#__PURE__*/React.createElement("path", {
-      d: "M9.5 1L1 9.5h4.5V16h8V9.5H18L9.5 1z",
-      fill: glyph
-    })),
-    del: /*#__PURE__*/React.createElement("svg", {
-      width: "23",
-      height: "17",
-      viewBox: "0 0 23 17"
-    }, /*#__PURE__*/React.createElement("path", {
-      d: "M7 1h13a2 2 0 012 2v11a2 2 0 01-2 2H7l-6-7.5L7 1z",
-      fill: "none",
-      stroke: glyph,
-      strokeWidth: "1.6",
-      strokeLinejoin: "round"
-    }), /*#__PURE__*/React.createElement("path", {
-      d: "M10 5l7 7M17 5l-7 7",
-      stroke: glyph,
-      strokeWidth: "1.6",
-      strokeLinecap: "round"
-    })),
-    ret: /*#__PURE__*/React.createElement("svg", {
-      width: "20",
-      height: "14",
-      viewBox: "0 0 20 14"
-    }, /*#__PURE__*/React.createElement("path", {
-      d: "M18 1v6H4m0 0l4-4M4 7l4 4",
-      fill: "none",
-      stroke: "#fff",
-      strokeWidth: "1.8",
-      strokeLinecap: "round",
-      strokeLinejoin: "round"
-    }))
-  };
-  const key = (content, {
-    w,
-    flex,
-    ret,
-    fs = 25,
-    k
-  } = {}) => /*#__PURE__*/React.createElement("div", {
-    key: k,
-    style: {
-      height: 42,
-      borderRadius: 8.5,
-      flex: flex ? 1 : undefined,
-      width: w,
-      minWidth: 0,
-      background: ret ? '#08f' : keyBg,
-      boxShadow: '0 1px 0 rgba(0,0,0,0.075)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: '-apple-system, "SF Compact", system-ui',
-      fontSize: fs,
-      fontWeight: 458,
-      color: ret ? '#fff' : glyph
-    }
-  }, content);
-  const row = (keys, pad = 0) => /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 6.5,
-      justifyContent: 'center',
-      padding: `0 ${pad}px`
-    }
-  }, keys.map(l => key(l, {
-    flex: true,
-    k: l
-  })));
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'relative',
-      zIndex: 15,
-      borderRadius: 27,
-      overflow: 'hidden',
-      padding: '11px 0 2px',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      boxShadow: dark ? '0 -2px 20px rgba(0,0,0,0.09)' : '0 -1px 6px rgba(0,0,0,0.018), 0 -3px 20px rgba(0,0,0,0.012)'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      inset: 0,
-      borderRadius: 27,
-      backdropFilter: 'blur(12px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(12px) saturate(180%)',
-      background: dark ? 'rgba(120,120,128,0.14)' : 'rgba(255,255,255,0.25)'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      inset: 0,
-      borderRadius: 27,
-      boxShadow: dark ? 'inset 1.5px 1.5px 1px rgba(255,255,255,0.15)' : 'inset 1.5px 1.5px 1px rgba(255,255,255,0.7), inset -1px -1px 1px rgba(255,255,255,0.4)',
-      border: dark ? '0.5px solid rgba(255,255,255,0.15)' : '0.5px solid rgba(0,0,0,0.06)',
-      pointerEvents: 'none'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 20,
-      alignItems: 'center',
-      padding: '8px 22px 13px',
-      width: '100%',
-      boxSizing: 'border-box',
-      position: 'relative'
-    }
-  }, ['"The"', 'the', 'to'].map((w, i) => /*#__PURE__*/React.createElement(React.Fragment, {
-    key: i
-  }, i > 0 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 1,
-      height: 25,
-      background: '#ccc',
-      opacity: 0.3
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      textAlign: 'center',
-      fontFamily: '-apple-system, system-ui',
-      fontSize: 17,
-      color: sugg,
-      letterSpacing: -0.43,
-      lineHeight: '22px'
-    }
-  }, w)))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 13,
-      padding: '0 6.5px',
-      width: '100%',
-      boxSizing: 'border-box',
-      position: 'relative'
-    }
-  }, row(['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p']), row(['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'], 20), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 14.25,
-      alignItems: 'center'
-    }
-  }, key(icons.shift, {
-    w: 45,
-    k: 'shift'
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 6.5,
-      flex: 1
-    }
-  }, ['z', 'x', 'c', 'v', 'b', 'n', 'm'].map(l => key(l, {
-    flex: true,
-    k: l
-  }))), key(icons.del, {
-    w: 45,
-    k: 'del'
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 6,
-      alignItems: 'center'
-    }
-  }, key('ABC', {
-    w: 92.25,
-    fs: 18,
-    k: 'abc'
-  }), key('', {
-    flex: true,
-    k: 'space'
-  }), key(icons.ret, {
-    w: 92.25,
-    ret: true,
-    k: 'ret'
-  }))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: 56,
-      width: '100%',
-      position: 'relative'
-    }
-  }));
-}
-Object.assign(window, {
-  IOSDevice,
-  IOSStatusBar,
-  IOSNavBar,
-  IOSGlassPill,
-  IOSList,
-  IOSListRow,
-  IOSKeyboard
-});
-
-/* chart.jsx */
-/* Pinecrest Capital — performance chart (controlled, interactive) */
-
+/* ─────────────────────────────────────────────────────────────
+   2. Performance chart — controlled, interactive
+   ───────────────────────────────────────────────────────────── */
 function fmtMonthDay(t) {
   const d = new Date(t);
-  return d.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    timeZone: 'UTC'
-  });
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
 }
-function PerformanceChart({
-  data,
-  accent,
-  activeIdx,
-  onScrub
-}) {
+
+function PerformanceChart({ data, accent, activeIdx, onScrub }) {
   const wrapRef = React.useRef(null);
   const pathRef = React.useRef(null);
   const [W, setW] = React.useState(340);
   const H = 214;
-  const padL = 0,
-    padR = 0,
-    padT = 26,
-    padB = 26;
+  const padL = 0, padR = 0, padT = 26, padB = 26;
 
   // measure width
   React.useEffect(() => {
@@ -1304,40 +667,35 @@ function PerformanceChart({
     setW(Math.max(200, el.getBoundingClientRect().width));
     return () => ro.disconnect();
   }, []);
+
   const n = data.length;
   const hasBench = data.some(p => p.b != null);
   const allV = [];
-  data.forEach(p => {
-    allV.push(p.v);
-    if (p.b != null) allV.push(p.b);
-  });
+  data.forEach(p => { allV.push(p.v); if (p.b != null) allV.push(p.b); });
   let min = Math.min(...allV, 100);
   let max = Math.max(...allV, 100);
   const span = Math.max(max - min, 1);
   min -= span * 0.16;
   max += span * 0.16;
+
   const innerW = W - padL - padR;
   const innerH = H - padT - padB;
   const xFor = i => padL + (n <= 1 ? innerW / 2 : innerW * (i / (n - 1)));
   const yFor = v => padT + innerH * (1 - (v - min) / (max - min));
 
   // line + area paths
-  let linePath = '',
-    areaPath = '';
+  let linePath = '', areaPath = '';
   data.forEach((p, i) => {
-    const x = xFor(i),
-      y = yFor(p.v);
+    const x = xFor(i), y = yFor(p.v);
     linePath += i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
   });
   areaPath = linePath + ` L ${xFor(n - 1)} ${padT + innerH} L ${xFor(0)} ${padT + innerH} Z`;
 
   // benchmark (QQQ) path — only across points that carry a benchmark value
-  let benchPath = '',
-    benchStarted = false;
+  let benchPath = '', benchStarted = false;
   data.forEach((p, i) => {
     if (p.b == null) return;
-    const x = xFor(i),
-      y = yFor(p.b);
+    const x = xFor(i), y = yFor(p.b);
     benchPath += !benchStarted ? `M ${x} ${y}` : ` L ${x} ${y}`;
     benchStarted = true;
   });
@@ -1347,22 +705,16 @@ function PerformanceChart({
     const path = pathRef.current;
     if (!path) return;
     let len = 0;
-    try {
-      len = path.getTotalLength();
-    } catch (e) {
-      return;
-    }
+    try { len = path.getTotalLength(); } catch (e) { return; }
     path.style.transition = 'none';
     path.style.strokeDasharray = len;
     path.style.strokeDashoffset = len;
-    // force reflow then animate
-    void path.getBoundingClientRect();
+    void path.getBoundingClientRect(); // force reflow, then animate
     path.style.transition = 'stroke-dashoffset 1.15s cubic-bezier(0.22,1,0.36,1)';
     path.style.strokeDashoffset = '0';
   }, [W, n, data]);
 
-  // baseline (100%)
-  const baseY = yFor(100);
+  const baseY = yFor(100); // the 100% baseline
 
   // x tick indices
   const tickCount = Math.min(4, n);
@@ -1370,9 +722,7 @@ function PerformanceChart({
   if (tickCount <= 1) {
     tickIdx.push(0);
   } else {
-    for (let i = 0; i < tickCount; i++) {
-      tickIdx.push(Math.round(i / (tickCount - 1) * (n - 1)));
-    }
+    for (let i = 0; i < tickCount; i++) tickIdx.push(Math.round(i / (tickCount - 1) * (n - 1)));
   }
 
   // pointer → nearest index
@@ -1382,179 +732,136 @@ function PerformanceChart({
     const rect = el.getBoundingClientRect();
     const rel = clientX - rect.left - padL;
     const frac = Math.max(0, Math.min(1, rel / innerW));
-    const idx = Math.round(frac * (n - 1));
-    onScrub(idx);
+    onScrub(Math.round(frac * (n - 1)));
   };
-  const active = activeIdx != null && activeIdx >= 0 && activeIdx < n ? activeIdx : null;
+
+  const active = (activeIdx != null && activeIdx >= 0 && activeIdx < n) ? activeIdx : null;
   const gradId = 'pccgrad';
-  return /*#__PURE__*/React.createElement("div", {
+
+  return React.createElement("div", {
     ref: wrapRef,
-    style: {
-      position: 'relative',
-      width: '100%',
-      userSelect: 'none',
-      touchAction: 'none',
-      cursor: 'crosshair'
-    },
+    style: { position: 'relative', width: '100%', userSelect: 'none', touchAction: 'none', cursor: 'crosshair' },
     onMouseDown: e => handlePointer(e.clientX),
-    onMouseMove: e => {
-      if (e.buttons === 1) handlePointer(e.clientX);
-    },
+    onMouseMove: e => { if (e.buttons === 1) handlePointer(e.clientX); },
     onMouseLeave: () => onScrub(null),
     onTouchStart: e => handlePointer(e.touches[0].clientX),
-    onTouchMove: e => {
-      handlePointer(e.touches[0].clientX);
-    },
+    onTouchMove: e => handlePointer(e.touches[0].clientX),
     onTouchEnd: () => onScrub(null)
-  }, /*#__PURE__*/React.createElement("svg", {
-    width: W,
-    height: H,
-    style: {
-      display: 'block',
-      overflow: 'visible'
-    }
-  }, /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("linearGradient", {
-    id: gradId,
-    x1: "0",
-    y1: "0",
-    x2: "0",
-    y2: "1"
-  }, /*#__PURE__*/React.createElement("stop", {
-    offset: "0%",
-    stopColor: accent,
-    stopOpacity: "0.22"
-  }), /*#__PURE__*/React.createElement("stop", {
-    offset: "60%",
-    stopColor: accent,
-    stopOpacity: "0.05"
-  }), /*#__PURE__*/React.createElement("stop", {
-    offset: "100%",
-    stopColor: accent,
-    stopOpacity: "0"
-  }))), /*#__PURE__*/React.createElement("line", {
-    x1: padL,
-    y1: baseY,
-    x2: W - padR,
-    y2: baseY,
-    stroke: "rgba(255,255,255,0.14)",
-    strokeWidth: "1",
-    strokeDasharray: "2 4"
-  }), /*#__PURE__*/React.createElement("text", {
-    x: W - padR,
-    y: baseY - 6,
-    textAnchor: "end",
-    style: {
-      fontFamily: 'var(--mono)',
-      fontSize: 10,
-      letterSpacing: 0.3
+  },
+    React.createElement("svg", { width: W, height: H, style: { display: 'block', overflow: 'visible' } },
+      React.createElement("defs", null,
+        React.createElement("linearGradient", { id: gradId, x1: "0", y1: "0", x2: "0", y2: "1" },
+          React.createElement("stop", { offset: "0%", stopColor: accent, stopOpacity: "0.22" }),
+          React.createElement("stop", { offset: "60%", stopColor: accent, stopOpacity: "0.05" }),
+          React.createElement("stop", { offset: "100%", stopColor: accent, stopOpacity: "0" })
+        )
+      ),
+      React.createElement("line", {
+        x1: padL, y1: baseY, x2: W - padR, y2: baseY,
+        stroke: "rgba(255,255,255,0.14)", strokeWidth: "1", strokeDasharray: "2 4"
+      }),
+      React.createElement("text", {
+        x: W - padR, y: baseY - 6, textAnchor: "end",
+        style: { fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: 0.3 },
+        fill: "rgba(255,255,255,0.34)"
+      }, "100.00%"),
+      React.createElement("path", { d: areaPath, fill: `url(#${gradId})`, stroke: "none" }),
+      hasBench && benchPath && React.createElement("path", {
+        d: benchPath, fill: "none", stroke: "rgba(255,255,255,0.40)", strokeWidth: "1.5",
+        strokeLinejoin: "round", strokeLinecap: "round", strokeDasharray: "1 5"
+      }),
+      React.createElement("path", {
+        ref: pathRef, d: linePath, fill: "none", stroke: accent, strokeWidth: "2.25",
+        strokeLinejoin: "round", strokeLinecap: "round"
+      }),
+      active == null && n > 0 && React.createElement("circle", {
+        cx: xFor(n - 1), cy: yFor(data[n - 1].v), r: "3.5",
+        fill: accent, stroke: "#0a0a0a", strokeWidth: "2"
+      }),
+      tickIdx.map((ti, k) => React.createElement("text", {
+        key: k, x: xFor(ti), y: H - 6,
+        textAnchor: k === 0 ? 'start' : (k === tickIdx.length - 1 ? 'end' : 'middle'),
+        style: { fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: 0.2 },
+        fill: "rgba(255,255,255,0.32)"
+      }, fmtMonthDay(data[ti].t))),
+      active != null && React.createElement("g", null,
+        React.createElement("line", {
+          x1: xFor(active), y1: padT - 8, x2: xFor(active), y2: padT + innerH,
+          stroke: "rgba(255,255,255,0.28)", strokeWidth: "1"
+        }),
+        data[active].b != null && React.createElement("circle", {
+          cx: xFor(active), cy: yFor(data[active].b), r: "3.5",
+          fill: "#0a0a0a", stroke: "rgba(255,255,255,0.6)", strokeWidth: "1.5"
+        }),
+        React.createElement("circle", {
+          cx: xFor(active), cy: yFor(data[active].v), r: "4.5",
+          fill: accent, stroke: "#0a0a0a", strokeWidth: "2.5"
+        })
+      )
+    ),
+    active != null && React.createElement("div", {
+      style: {
+        position: 'absolute', top: -2,
+        left: Math.max(4, Math.min(W - 210, xFor(active) - 105)),
+        width: 210, pointerEvents: 'none', textAlign: 'center',
+        fontFamily: 'var(--mono)', fontSize: 11, color: 'rgba(255,255,255,0.92)',
+        letterSpacing: 0.2, whiteSpace: 'nowrap'
+      }
     },
-    fill: "rgba(255,255,255,0.34)"
-  }, "100.00%"), /*#__PURE__*/React.createElement("path", {
-    d: areaPath,
-    fill: `url(#${gradId})`,
-    stroke: "none"
-  }), hasBench && benchPath && /*#__PURE__*/React.createElement("path", {
-    d: benchPath,
-    fill: "none",
-    stroke: "rgba(255,255,255,0.40)",
-    strokeWidth: "1.5",
-    strokeLinejoin: "round",
-    strokeLinecap: "round",
-    strokeDasharray: "1 5"
-  }), /*#__PURE__*/React.createElement("path", {
-    ref: pathRef,
-    d: linePath,
-    fill: "none",
-    stroke: accent,
-    strokeWidth: "2.25",
-    strokeLinejoin: "round",
-    strokeLinecap: "round"
-  }), active == null && n > 0 && /*#__PURE__*/React.createElement("circle", {
-    cx: xFor(n - 1),
-    cy: yFor(data[n - 1].v),
-    r: "3.5",
-    fill: accent,
-    stroke: "#0a0a0a",
-    strokeWidth: "2"
-  }), tickIdx.map((ti, k) => /*#__PURE__*/React.createElement("text", {
-    key: k,
-    x: xFor(ti),
-    y: H - 6,
-    textAnchor: k === 0 ? 'start' : k === tickIdx.length - 1 ? 'end' : 'middle',
-    style: {
-      fontFamily: 'var(--mono)',
-      fontSize: 10,
-      letterSpacing: 0.2
-    },
-    fill: "rgba(255,255,255,0.32)"
-  }, fmtMonthDay(data[ti].t))), active != null && /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("line", {
-    x1: xFor(active),
-    y1: padT - 8,
-    x2: xFor(active),
-    y2: padT + innerH,
-    stroke: "rgba(255,255,255,0.28)",
-    strokeWidth: "1"
-  }), data[active].b != null && /*#__PURE__*/React.createElement("circle", {
-    cx: xFor(active),
-    cy: yFor(data[active].b),
-    r: "3.5",
-    fill: "#0a0a0a",
-    stroke: "rgba(255,255,255,0.6)",
-    strokeWidth: "1.5"
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: xFor(active),
-    cy: yFor(data[active].v),
-    r: "4.5",
-    fill: accent,
-    stroke: "#0a0a0a",
-    strokeWidth: "2.5"
-  }))), active != null && /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      top: -2,
-      left: Math.max(4, Math.min(W - 210, xFor(active) - 105)),
-      width: 210,
-      pointerEvents: 'none',
-      textAlign: 'center',
-      fontFamily: 'var(--mono)',
-      fontSize: 11,
-      color: 'rgba(255,255,255,0.92)',
-      letterSpacing: 0.2,
-      whiteSpace: 'nowrap'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: accent,
-      fontWeight: 500
-    }
-  }, data[active].v.toFixed(2), "%"), data[active].b != null && /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'rgba(255,255,255,0.55)',
-      marginLeft: 8
-    }
-  }, "QQQ ", data[active].b.toFixed(2), "%"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'rgba(255,255,255,0.4)',
-      marginLeft: 8
-    }
-  }, new Date(data[active].t).toLocaleDateString('en-US', {
-    day: 'numeric',
-    month: 'short',
-    year: '2-digit',
-    timeZone: 'UTC'
-  }))));
+      React.createElement("span", { style: { color: accent, fontWeight: 500 } },
+        data[active].v.toFixed(2), "%"),
+      data[active].b != null && React.createElement("span", {
+        style: { color: 'rgba(255,255,255,0.55)', marginLeft: 8 }
+      }, "QQQ ", data[active].b.toFixed(2), "%"),
+      React.createElement("span", {
+        style: { color: 'rgba(255,255,255,0.4)', marginLeft: 8 }
+      }, new Date(data[active].t).toLocaleDateString('en-US', {
+        day: 'numeric', month: 'short', year: '2-digit', timeZone: 'UTC'
+      }))
+    )
+  );
 }
-window.PerformanceChart = PerformanceChart;
 
-/* app.jsx */
-/* Pinecrest Capital — app shell: access gate + track-record dashboard */
-
-const ACCESS_CODE = 'pine'; // ← the code you share with LPs personally
+/* ─────────────────────────────────────────────────────────────
+   3. Shared pieces
+   ───────────────────────────────────────────────────────────── */
+const ACCESS_CODE = 'pine';   // ← the code you share with investors personally
 const ACCENT = '#3ECF8E';
-const UP = ACCENT,
-  DOWN = '#F2606B';
+const UP = ACCENT, DOWN = '#F2606B';
 
-/* ---- small animated count-up hook (mount / range changes) ---------------- */
+// simple geometric pine motif (two stacked triangles)
+function Mark({ size = 26 }) {
+  return React.createElement("svg", { width: size, height: size, viewBox: "0 0 26 26", fill: "none" },
+    React.createElement("path", {
+      d: "M13 2 L22 14 L4 14 Z", stroke: ACCENT, strokeWidth: "1.6", strokeLinejoin: "round"
+    }),
+    React.createElement("path", {
+      d: "M13 9 L23 24 L3 24 Z", stroke: ACCENT, strokeWidth: "1.6", strokeLinejoin: "round",
+      fill: ACCENT, fillOpacity: "0.08"
+    })
+  );
+}
+
+function Stat({ label, value, tone }) {
+  return React.createElement("div", {
+    style: { flex: 1, display: 'flex', flexDirection: 'column', gap: 5 }
+  },
+    React.createElement("div", {
+      style: {
+        fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: 0.8,
+        textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)'
+      }
+    }, label),
+    React.createElement("div", {
+      style: {
+        fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 600,
+        fontVariantNumeric: 'tabular-nums', color: tone || '#f0f0f0'
+      }
+    }, value)
+  );
+}
+
+// count-up animation on mount / range change
 function useAnimatedNumber(target, deps) {
   const [val, setVal] = React.useState(target);
   const fromRef = React.useRef(target);
@@ -1568,7 +875,7 @@ function useAnimatedNumber(target, deps) {
       if (start == null) start = ts;
       const p = Math.min(1, (ts - start) / dur);
       setVal(from + (to - from) * ease(p));
-      if (p < 1) raf = requestAnimationFrame(tick);else fromRef.current = to;
+      if (p < 1) raf = requestAnimationFrame(tick); else fromRef.current = to;
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
@@ -1576,13 +883,14 @@ function useAnimatedNumber(target, deps) {
   return val;
 }
 
-/* ============================== LOCK SCREEN =============================== */
-function LockScreen({
-  onUnlock
-}) {
+/* ─────────────────────────────────────────────────────────────
+   4. Lock screen
+   ───────────────────────────────────────────────────────────── */
+function LockScreen({ onUnlock }) {
   const [code, setCode] = React.useState('');
   const [err, setErr] = React.useState(false);
-  const inputRef = React.useRef(null);
+  const formRef = React.useRef(null);
+
   const submit = e => {
     e.preventDefault();
     if (code.trim().toUpperCase() === ACCESS_CODE.toUpperCase()) {
@@ -1590,200 +898,107 @@ function LockScreen({
     } else {
       setErr(true);
       setCode('');
-      if (inputRef.current) {
-        inputRef.current.classList.remove('shake');
-        void inputRef.current.offsetWidth;
-        inputRef.current.classList.add('shake');
+      if (formRef.current) {
+        formRef.current.classList.remove('shake');
+        void formRef.current.offsetWidth;
+        formRef.current.classList.add('shake');
       }
     }
   };
-  return /*#__PURE__*/React.createElement("div", {
+
+  return React.createElement("div", {
     style: {
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      padding: '0 34px',
-      boxSizing: 'border-box'
+      height: '100%', display: 'flex', flexDirection: 'column',
+      justifyContent: 'center', padding: '0 34px', boxSizing: 'border-box'
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      marginBottom: 44
-    }
-  }, /*#__PURE__*/React.createElement(Mark, {
-    size: 40
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 22,
-      fontFamily: 'var(--sans)',
-      fontWeight: 600,
-      fontSize: 21,
-      letterSpacing: 4,
-      color: '#fafafa'
-    }
-  }, "PINECREST"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 4,
-      fontFamily: 'var(--mono)',
-      fontSize: 11,
-      letterSpacing: 6,
-      color: 'rgba(255,255,255,0.42)'
-    }
-  }, "CAPITAL")), /*#__PURE__*/React.createElement("form", {
-    onSubmit: submit,
-    ref: inputRef
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: 'var(--mono)',
-      fontSize: 10.5,
-      letterSpacing: 1.5,
-      textTransform: 'uppercase',
-      color: 'rgba(255,255,255,0.4)',
-      marginBottom: 10,
-      textAlign: 'center'
-    }
-  }, "Enter access code"), /*#__PURE__*/React.createElement("input", {
-    autoFocus: true,
-    value: code,
-    onChange: e => {
-      setCode(e.target.value);
-      setErr(false);
+  },
+    React.createElement("div", {
+      style: { display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 44 }
     },
-    placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
-    style: {
-      width: '100%',
-      boxSizing: 'border-box',
-      textAlign: 'center',
-      background: 'rgba(255,255,255,0.04)',
-      border: `1px solid ${err ? 'rgba(242,96,107,0.6)' : 'rgba(255,255,255,0.12)'}`,
-      borderRadius: 14,
-      padding: '15px 16px',
-      color: '#fafafa',
-      fontFamily: 'var(--mono)',
-      fontSize: 16,
-      letterSpacing: 3,
-      outline: 'none',
-      transition: 'border-color .2s'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: 18,
-      marginTop: 8,
-      textAlign: 'center'
-    }
-  }, err && /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: 'var(--mono)',
-      fontSize: 11,
-      color: DOWN,
-      letterSpacing: 0.3
-    }
-  }, "Invalid access code")), /*#__PURE__*/React.createElement("button", {
-    type: "submit",
-    style: {
-      width: '100%',
-      marginTop: 6,
-      border: 'none',
-      cursor: 'pointer',
-      background: ACCENT,
-      color: '#06140d',
-      borderRadius: 14,
-      padding: '15px 16px',
-      fontFamily: 'var(--sans)',
-      fontWeight: 600,
-      fontSize: 15,
-      letterSpacing: 0.3
-    }
-  }, "Unlock track record")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 30,
-      textAlign: 'center',
-      fontFamily: 'var(--mono)',
-      fontSize: 10,
-      lineHeight: 1.7,
-      letterSpacing: 0.4,
-      color: 'rgba(255,255,255,0.3)'
-    }
-  }, "INVITATION ONLY \xB7 ALGORITHMIC NASDAQ FUTURES", /*#__PURE__*/React.createElement("br", null), "ACCESS GRANTED BY THE PRINCIPAL"));
+      React.createElement(Mark, { size: 40 }),
+      React.createElement("div", {
+        style: {
+          marginTop: 22, fontFamily: 'var(--sans)', fontWeight: 600,
+          fontSize: 21, letterSpacing: 4, color: '#fafafa'
+        }
+      }, "PINECREST"),
+      React.createElement("div", {
+        style: {
+          marginTop: 4, fontFamily: 'var(--mono)', fontSize: 11,
+          letterSpacing: 6, color: 'rgba(255,255,255,0.42)'
+        }
+      }, "CAPITAL")
+    ),
+    React.createElement("form", { onSubmit: submit, ref: formRef },
+      React.createElement("div", {
+        style: {
+          fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: 1.5,
+          textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)',
+          marginBottom: 10, textAlign: 'center'
+        }
+      }, "Enter access code"),
+      React.createElement("input", {
+        autoFocus: true,
+        value: code,
+        onChange: e => { setCode(e.target.value); setErr(false); },
+        placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+        style: {
+          width: '100%', boxSizing: 'border-box', textAlign: 'center',
+          background: 'rgba(255,255,255,0.04)',
+          border: `1px solid ${err ? 'rgba(242,96,107,0.6)' : 'rgba(255,255,255,0.12)'}`,
+          borderRadius: 14, padding: '15px 16px', color: '#fafafa',
+          fontFamily: 'var(--mono)', fontSize: 16, letterSpacing: 3,
+          outline: 'none', transition: 'border-color .2s'
+        }
+      }),
+      React.createElement("div", { style: { height: 18, marginTop: 8, textAlign: 'center' } },
+        err && React.createElement("span", {
+          style: { fontFamily: 'var(--mono)', fontSize: 11, color: DOWN, letterSpacing: 0.3 }
+        }, "Invalid access code")
+      ),
+      React.createElement("button", {
+        type: "submit",
+        style: {
+          width: '100%', marginTop: 6, border: 'none', cursor: 'pointer',
+          background: ACCENT, color: '#06140d', borderRadius: 14,
+          padding: '15px 16px', fontFamily: 'var(--sans)', fontWeight: 600,
+          fontSize: 15, letterSpacing: 0.3
+        }
+      }, "Unlock track record")
+    ),
+    React.createElement("div", {
+      style: {
+        marginTop: 30, textAlign: 'center', fontFamily: 'var(--mono)',
+        fontSize: 10, lineHeight: 1.7, letterSpacing: 0.4, color: 'rgba(255,255,255,0.3)'
+      }
+    }, "INVITATION ONLY \xB7 ALGORITHMIC NASDAQ FUTURES",
+      React.createElement("br", null),
+      "ACCESS GRANTED BY THE PRINCIPAL")
+  );
 }
 
-/* ================================ MARK =================================== */
-function Mark({
-  size = 26
-}) {
-  // simple geometric pine motif (two stacked triangles)
-  const s = size;
-  return /*#__PURE__*/React.createElement("svg", {
-    width: s,
-    height: s,
-    viewBox: "0 0 26 26",
-    fill: "none"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M13 2 L22 14 L4 14 Z",
-    stroke: ACCENT,
-    strokeWidth: "1.6",
-    strokeLinejoin: "round"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M13 9 L23 24 L3 24 Z",
-    stroke: ACCENT,
-    strokeWidth: "1.6",
-    strokeLinejoin: "round",
-    fill: ACCENT,
-    fillOpacity: "0.08"
-  }));
-}
-
-/* ============================== DASHBOARD ================================ */
-function Stat({
-  label,
-  value,
-  tone
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 5
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: 'var(--mono)',
-      fontSize: 9.5,
-      letterSpacing: 0.8,
-      textTransform: 'uppercase',
-      color: 'rgba(255,255,255,0.38)'
-    }
-  }, label), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: 'var(--sans)',
-      fontSize: 16,
-      fontWeight: 600,
-      fontVariantNumeric: 'tabular-nums',
-      color: tone || '#f0f0f0'
-    }
-  }, value));
-}
-function Dashboard({
-  onLock
-}) {
+/* ─────────────────────────────────────────────────────────────
+   5. Dashboard
+   ───────────────────────────────────────────────────────────── */
+function Dashboard({ onLock }) {
   const RANGES = ['1M', '3M', 'MAX'];
   const [range, setRange] = React.useState('MAX');
   const [activeIdx, setActiveIdx] = React.useState(null);
+
+  // The range switch drives the CHART ONLY. Every statistic below the chart
+  // is computed over the full history and labelled "Since inception".
   const data = React.useMemo(() => window.PCC.slice(range), [range]);
   const latestVal = data[data.length - 1].v;
-  React.useEffect(() => {
-    setActiveIdx(null);
-  }, [range]);
+
+  React.useEffect(() => { setActiveIdx(null); }, [range]);
+
   const anim = useAnimatedNumber(latestVal, [range]);
   const scrubbing = activeIdx != null;
   const shownPoint = scrubbing ? data[activeIdx] : null;
   const shownVal = scrubbing ? shownPoint.v : anim;
   const delta = shownVal - 100;
   const tone = delta >= 0 ? UP : DOWN;
+
   const ath = window.PCC.maxValue();
   const mdd = window.PCC.maxDrawdown();
   const vol = window.PCC.volatility();
@@ -1791,415 +1006,332 @@ function Dashboard({
   const worstDay = window.PCC.worstDay();
   const winRate = window.PCC.winRate();
   const months = window.PCC.monthlyReturns();
+
   const hasBench = window.PCC.hasBenchmark();
   const benchName = window.PCC.benchLabel() || 'QQQ';
-  const benchVal = window.PCC.benchLatest();
   const alpha = window.PCC.alpha();
+
   const lu = window.PCC.lastUpdated();
   const updatedLabel = lu ? new Date(lu).toLocaleDateString('en-US', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    timeZone: 'UTC'
+    day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC'
   }) : null;
   const inceptionLabel = new Date(window.PCC.inception().t).toLocaleDateString('en-US', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    timeZone: 'UTC'
+    day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC'
   });
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '8px 22px 4px'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 10
-    }
-  }, /*#__PURE__*/React.createElement(Mark, {
-    size: 20
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: 'var(--sans)',
-      fontWeight: 600,
-      fontSize: 12.5,
-      letterSpacing: 2.5,
-      color: '#eaeaea'
-    }
-  }, "PINECREST CAPITAL")), /*#__PURE__*/React.createElement("button", {
-    onClick: onLock,
-    "aria-label": "Lock",
-    style: {
-      background: 'none',
-      border: 'none',
-      cursor: 'pointer',
-      padding: 6,
-      lineHeight: 0
-    }
-  }, /*#__PURE__*/React.createElement("svg", {
-    width: "15",
-    height: "17",
-    viewBox: "0 0 15 17",
-    fill: "none"
-  }, /*#__PURE__*/React.createElement("rect", {
-    x: "1",
-    y: "7",
-    width: "13",
-    height: "9",
-    rx: "2.2",
-    stroke: "rgba(255,255,255,0.5)",
-    strokeWidth: "1.4"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M4 7V5a3.5 3.5 0 0 1 7 0v2",
-    stroke: "rgba(255,255,255,0.5)",
-    strokeWidth: "1.4"
-  })))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      overflow: 'auto',
-      padding: '0 22px'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 30
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: 'var(--mono)',
-      fontSize: 10.5,
-      letterSpacing: 1.6,
-      textTransform: 'uppercase',
-      color: 'rgba(255,255,255,0.42)'
-    }
-  }, "Net cumulative performance"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 10,
-      fontFamily: 'var(--sans)',
-      fontWeight: 600,
-      fontSize: 60,
-      lineHeight: 1,
-      letterSpacing: -2,
-      fontVariantNumeric: 'tabular-nums',
-      color: '#fafafa'
-    }
-  }, shownVal.toFixed(2), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 30,
-      color: 'rgba(255,255,255,0.55)',
-      letterSpacing: -1
-    }
-  }, "%")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 12,
-      display: 'flex',
-      alignItems: 'center',
-      gap: 10
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 5,
-      fontFamily: 'var(--sans)',
-      fontWeight: 600,
-      fontSize: 15,
-      fontVariantNumeric: 'tabular-nums',
-      color: tone
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 11
-    }
-  }, delta >= 0 ? '▲' : '▼'), delta >= 0 ? '+' : '', delta.toFixed(2), "%"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: 'var(--mono)',
-      fontSize: 11,
-      color: 'rgba(255,255,255,0.4)',
-      letterSpacing: 0.3
-    }
-  }, scrubbing ? new Date(shownPoint.t).toLocaleDateString('en-US', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    timeZone: 'UTC'
-  }) : `since inception · ${inceptionLabel}`)), !scrubbing && updatedLabel && /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 8,
-      fontFamily: 'var(--mono)',
-      fontSize: 10,
-      letterSpacing: 0.4,
-      color: 'rgba(255,255,255,0.32)',
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 6
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      width: 5,
-      height: 5,
-      borderRadius: 5,
-      background: UP,
-      display: 'inline-block'
-    }
-  }), "As of ", updatedLabel)), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 22,
-      display: 'flex',
-      gap: 4,
-      background: 'rgba(255,255,255,0.04)',
-      borderRadius: 11,
-      padding: 4,
-      width: 'fit-content'
-    }
-  }, RANGES.map(r => {
-    const on = r === range;
-    return /*#__PURE__*/React.createElement("button", {
-      key: r,
-      onClick: () => setRange(r),
+
+  return React.createElement("div", {
+    style: { height: '100%', display: 'flex', flexDirection: 'column' }
+  },
+    // ── header bar ──
+    React.createElement("div", {
       style: {
-        border: 'none',
-        cursor: 'pointer',
-        borderRadius: 8,
-        padding: '6px 16px',
-        fontFamily: 'var(--mono)',
-        fontSize: 11,
-        letterSpacing: 1,
-        fontWeight: 500,
-        background: on ? 'rgba(62,207,142,0.14)' : 'transparent',
-        color: on ? ACCENT : 'rgba(255,255,255,0.45)',
-        transition: 'all .18s'
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '8px 22px 4px'
       }
-    }, r);
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 12
-    }
-  }, /*#__PURE__*/React.createElement(PerformanceChart, {
-    data: data,
-    accent: ACCENT,
-    activeIdx: activeIdx,
-    onScrub: setActiveIdx
-  })), hasBench && /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 10,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: 12,
-      flexWrap: 'wrap'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 16
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 6,
-      fontFamily: 'var(--mono)',
-      fontSize: 10.5,
-      color: 'rgba(255,255,255,0.75)',
-      letterSpacing: 0.3
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      width: 14,
-      height: 2.5,
-      background: ACCENT,
-      borderRadius: 2,
-      display: 'inline-block'
-    }
-  }), "Pinecrest"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 6,
-      fontFamily: 'var(--mono)',
-      fontSize: 10.5,
-      color: 'rgba(255,255,255,0.5)',
-      letterSpacing: 0.3
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      width: 14,
-      height: 0,
-      borderTop: '2px dotted rgba(255,255,255,0.55)',
-      display: 'inline-block'
-    }
-  }), benchName)), alpha != null && /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: 'var(--mono)',
-      fontSize: 10.5,
-      letterSpacing: 0.3,
-      color: 'rgba(255,255,255,0.5)'
-    }
-  }, "alpha\xA0", /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: alpha >= 0 ? UP : DOWN,
-      fontWeight: 500
-    }
-  }, alpha >= 0 ? '+' : '', alpha.toFixed(2), "%"))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 22,
-      display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',
-      rowGap: 18,
-      columnGap: 14,
-      paddingTop: 20,
-      borderTop: '1px solid rgba(255,255,255,0.07)'
-    }
-  }, /*#__PURE__*/React.createElement(Stat, {
-    label: "All-time high",
-    value: `${ath.toFixed(2)}%`,
-    tone: "#f0f0f0"
-  }), /*#__PURE__*/React.createElement(Stat, {
-    label: "Max drawdown",
-    value: `${mdd.toFixed(2)}%`,
-    tone: DOWN
-  }), /*#__PURE__*/React.createElement(Stat, {
-    label: "Win rate",
-    value: `${winRate.toFixed(0)}%`,
-    tone: "#f0f0f0"
-  }), /*#__PURE__*/React.createElement(Stat, {
-    label: "Best day",
-    value: `${bestDay >= 0 ? '+' : ''}${bestDay.toFixed(2)}%`,
-    tone: UP
-  }), /*#__PURE__*/React.createElement(Stat, {
-    label: "Worst day",
-    value: `${worstDay.toFixed(2)}%`,
-    tone: DOWN
-  }), /*#__PURE__*/React.createElement(Stat, {
-    label: "Volatility (ann.)",
-    value: `${vol.toFixed(1)}%`,
-    tone: "#f0f0f0"
-  })), months.length > 0 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 26,
-      paddingTop: 20,
-      borderTop: '1px solid rgba(255,255,255,0.07)'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: 'var(--mono)',
-      fontSize: 9.5,
-      letterSpacing: 0.8,
-      textTransform: 'uppercase',
-      color: 'rgba(255,255,255,0.38)',
-      marginBottom: 12
-    }
-  }, "Monthly returns"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 8,
-      overflowX: 'auto',
-      paddingBottom: 2
-    }
-  }, months.map(m => /*#__PURE__*/React.createElement("div", {
-    key: m.ym,
-    style: {
-      flex: '0 0 auto',
-      minWidth: 58,
-      padding: '10px 12px',
-      background: 'rgba(255,255,255,0.035)',
-      borderRadius: 10,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 5,
-      alignItems: 'flex-start'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: 'var(--mono)',
-      fontSize: 9.5,
-      letterSpacing: 0.5,
-      color: 'rgba(255,255,255,0.45)',
-      textTransform: 'uppercase'
-    }
-  }, m.label), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: 'var(--sans)',
-      fontSize: 14,
-      fontWeight: 600,
-      fontVariantNumeric: 'tabular-nums',
-      color: m.ret >= 0 ? UP : DOWN
-    }
-  }, m.ret >= 0 ? '+' : '', m.ret.toFixed(1), "%"))))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 24,
-      marginBottom: 16,
-      fontFamily: 'var(--mono)',
-      fontSize: 9.5,
-      lineHeight: 1.7,
-      letterSpacing: 0.3,
-      color: 'rgba(255,255,255,0.28)'
-    }
-  }, window.PCC.SAMPLE && /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'rgba(242,176,96,0.7)'
-    }
-  }, "\u25CF ILLUSTRATIVE SAMPLE DATA \xB7 "), "Indexed to 100.00% at inception. Past performance is not indicative of future results. For the named recipient only.")));
+    },
+      React.createElement("div", { style: { display: 'flex', alignItems: 'center', gap: 10 } },
+        React.createElement(Mark, { size: 20 }),
+        React.createElement("span", {
+          style: {
+            fontFamily: 'var(--sans)', fontWeight: 600, fontSize: 12.5,
+            letterSpacing: 2.5, color: '#eaeaea'
+          }
+        }, "PINECREST CAPITAL")
+      ),
+      React.createElement("button", {
+        onClick: onLock, "aria-label": "Lock",
+        style: { background: 'none', border: 'none', cursor: 'pointer', padding: 6, lineHeight: 0 }
+      },
+        React.createElement("svg", { width: "15", height: "17", viewBox: "0 0 15 17", fill: "none" },
+          React.createElement("rect", {
+            x: "1", y: "7", width: "13", height: "9", rx: "2.2",
+            stroke: "rgba(255,255,255,0.5)", strokeWidth: "1.4"
+          }),
+          React.createElement("path", {
+            d: "M4 7V5a3.5 3.5 0 0 1 7 0v2",
+            stroke: "rgba(255,255,255,0.5)", strokeWidth: "1.4"
+          })
+        )
+      )
+    ),
+
+    // ── scrollable body ──
+    React.createElement("div", { style: { flex: 1, overflow: 'auto', padding: '0 22px' } },
+
+      // headline number
+      React.createElement("div", { style: { marginTop: 30 } },
+        React.createElement("div", {
+          style: {
+            fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: 1.6,
+            textTransform: 'uppercase', color: 'rgba(255,255,255,0.42)'
+          }
+        }, "Net cumulative performance"),
+        React.createElement("div", {
+          style: {
+            marginTop: 10, fontFamily: 'var(--sans)', fontWeight: 600, fontSize: 60,
+            lineHeight: 1, letterSpacing: -2, fontVariantNumeric: 'tabular-nums', color: '#fafafa'
+          }
+        }, shownVal.toFixed(2),
+          React.createElement("span", {
+            style: { fontSize: 30, color: 'rgba(255,255,255,0.55)', letterSpacing: -1 }
+          }, "%")
+        ),
+        React.createElement("div", {
+          style: { marginTop: 12, display: 'flex', alignItems: 'center', gap: 10 }
+        },
+          React.createElement("span", {
+            style: {
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              fontFamily: 'var(--sans)', fontWeight: 600, fontSize: 15,
+              fontVariantNumeric: 'tabular-nums', color: tone
+            }
+          },
+            React.createElement("span", { style: { fontSize: 11 } }, delta >= 0 ? '▲' : '▼'),
+            delta >= 0 ? '+' : '', delta.toFixed(2), "%"
+          ),
+          React.createElement("span", {
+            style: { fontFamily: 'var(--mono)', fontSize: 11, color: 'rgba(255,255,255,0.4)', letterSpacing: 0.3 }
+          }, scrubbing
+            ? new Date(shownPoint.t).toLocaleDateString('en-US', {
+                day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC'
+              })
+            : `since inception · ${inceptionLabel}`)
+        ),
+        !scrubbing && updatedLabel && React.createElement("div", {
+          style: {
+            marginTop: 8, fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: 0.4,
+            color: 'rgba(255,255,255,0.32)', display: 'inline-flex', alignItems: 'center', gap: 6
+          }
+        },
+          React.createElement("span", {
+            style: { width: 5, height: 5, borderRadius: 5, background: UP, display: 'inline-block' }
+          }),
+          "As of ", updatedLabel
+        )
+      ),
+
+      // range switch (chart only)
+      React.createElement("div", {
+        style: {
+          marginTop: 22, display: 'flex', gap: 4,
+          background: 'rgba(255,255,255,0.04)', borderRadius: 11, padding: 4, width: 'fit-content'
+        }
+      }, RANGES.map(r => {
+        const on = r === range;
+        return React.createElement("button", {
+          key: r,
+          onClick: () => setRange(r),
+          style: {
+            border: 'none', cursor: 'pointer', borderRadius: 8, padding: '6px 16px',
+            fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: 1, fontWeight: 500,
+            background: on ? 'rgba(62,207,142,0.14)' : 'transparent',
+            color: on ? ACCENT : 'rgba(255,255,255,0.45)',
+            transition: 'all .18s'
+          }
+        }, r);
+      })),
+
+      // chart
+      React.createElement("div", { style: { marginTop: 12 } },
+        React.createElement(PerformanceChart, {
+          data, accent: ACCENT, activeIdx, onScrub: setActiveIdx
+        })
+      ),
+
+      // benchmark legend + alpha
+      hasBench && React.createElement("div", {
+        style: {
+          marginTop: 10, display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', gap: 12, flexWrap: 'wrap'
+        }
+      },
+        React.createElement("div", { style: { display: 'flex', alignItems: 'center', gap: 16 } },
+          React.createElement("span", {
+            style: {
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              fontFamily: 'var(--mono)', fontSize: 10.5,
+              color: 'rgba(255,255,255,0.75)', letterSpacing: 0.3
+            }
+          },
+            React.createElement("span", {
+              style: { width: 14, height: 2.5, background: ACCENT, borderRadius: 2, display: 'inline-block' }
+            }), "Pinecrest"
+          ),
+          React.createElement("span", {
+            style: {
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              fontFamily: 'var(--mono)', fontSize: 10.5,
+              color: 'rgba(255,255,255,0.5)', letterSpacing: 0.3
+            }
+          },
+            React.createElement("span", {
+              style: {
+                width: 14, height: 0, borderTop: '2px dotted rgba(255,255,255,0.55)',
+                display: 'inline-block'
+              }
+            }), benchName
+          )
+        ),
+        alpha != null && React.createElement("span", {
+          style: { fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: 0.3, color: 'rgba(255,255,255,0.5)' }
+        }, "alpha\xA0",
+          React.createElement("span", {
+            style: { color: alpha >= 0 ? UP : DOWN, fontWeight: 500 }
+          }, alpha >= 0 ? '+' : '', alpha.toFixed(2), "%")
+        )
+      ),
+
+      // ── statistics block — always full history, hence the label ──
+      React.createElement("div", {
+        style: { marginTop: 22, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.07)' }
+      },
+        React.createElement("div", {
+          style: {
+            fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: 0.8,
+            textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', marginBottom: 14
+          }
+        }, "Since inception"),
+        React.createElement("div", {
+          style: {
+            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
+            rowGap: 18, columnGap: 14
+          }
+        },
+          React.createElement(Stat, { label: "All-time high", value: `${ath.toFixed(2)}%`, tone: "#f0f0f0" }),
+          React.createElement(Stat, { label: "Max drawdown", value: `${mdd.toFixed(2)}%`, tone: DOWN }),
+          React.createElement(Stat, { label: "Win rate", value: `${winRate.toFixed(0)}%`, tone: "#f0f0f0" }),
+          React.createElement(Stat, { label: "Best day", value: `${bestDay >= 0 ? '+' : ''}${bestDay.toFixed(2)}%`, tone: UP }),
+          React.createElement(Stat, { label: "Worst day", value: `${worstDay.toFixed(2)}%`, tone: DOWN }),
+          React.createElement(Stat, { label: "Volatility (ann.)", value: `${vol.toFixed(1)}%`, tone: "#f0f0f0" })
+        )
+      ),
+
+      // monthly returns
+      months.length > 0 && React.createElement("div", {
+        style: { marginTop: 26, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.07)' }
+      },
+        React.createElement("div", {
+          style: {
+            fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: 0.8,
+            textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', marginBottom: 12
+          }
+        }, "Monthly returns"),
+        React.createElement("div", {
+          style: { display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2 }
+        }, months.map(m => React.createElement("div", {
+          key: m.ym,
+          style: {
+            flex: '0 0 auto', minWidth: 58, padding: '10px 12px',
+            background: 'rgba(255,255,255,0.035)', borderRadius: 10,
+            display: 'flex', flexDirection: 'column', gap: 5, alignItems: 'flex-start'
+          }
+        },
+          React.createElement("span", {
+            style: {
+              fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: 0.5,
+              color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase'
+            }
+          }, m.label),
+          React.createElement("span", {
+            style: {
+              fontFamily: 'var(--sans)', fontSize: 14, fontWeight: 600,
+              fontVariantNumeric: 'tabular-nums', color: m.ret >= 0 ? UP : DOWN
+            }
+          }, m.ret >= 0 ? '+' : '', m.ret.toFixed(1), "%")
+        )))
+      ),
+
+      // disclaimer
+      React.createElement("div", {
+        style: {
+          marginTop: 24, marginBottom: 16, fontFamily: 'var(--mono)', fontSize: 9.5,
+          lineHeight: 1.7, letterSpacing: 0.3, color: 'rgba(255,255,255,0.28)'
+        }
+      }, "Indexed to 100.00% at inception. Past performance is not indicative of future results. For the named recipient only.")
+    )
+  );
 }
 
-/* ================================= APP ================================== */
+/* ─────────────────────────────────────────────────────────────
+   6. No-data screen — shown instead of the dashboard whenever
+   data.txt is missing, unreachable or unusable. The app never
+   displays invented numbers.
+   ───────────────────────────────────────────────────────────── */
+function NoData({ onLock }) {
+  return React.createElement("div", {
+    style: {
+      height: '100%', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', padding: '0 40px',
+      boxSizing: 'border-box', textAlign: 'center'
+    }
+  },
+    React.createElement(Mark, { size: 34 }),
+    React.createElement("div", {
+      style: {
+        marginTop: 26, fontFamily: 'var(--sans)', fontWeight: 600,
+        fontSize: 17, color: '#eaeaea', letterSpacing: 0.2
+      }
+    }, "Daten nicht verf\u00fcgbar"),
+    React.createElement("div", {
+      style: {
+        marginTop: 10, fontFamily: 'var(--mono)', fontSize: 11, lineHeight: 1.7,
+        letterSpacing: 0.3, color: 'rgba(255,255,255,0.42)'
+      }
+    }, "Der Track Record kann derzeit nicht geladen werden. Bitte sp\u00e4ter erneut versuchen."),
+    React.createElement("button", {
+      onClick: onLock,
+      style: {
+        marginTop: 26, border: '1px solid rgba(255,255,255,0.14)', background: 'transparent',
+        color: 'rgba(255,255,255,0.6)', borderRadius: 12, padding: '10px 20px',
+        cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: 1
+      }
+    }, "SPERREN")
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   7. App + mount
+   ───────────────────────────────────────────────────────────── */
 function App() {
   const [unlocked, setUnlocked] = React.useState(() => {
-    try {
-      return sessionStorage.getItem('pcc_unlocked') === '1';
-    } catch (e) {
-      return false;
-    }
+    try { return sessionStorage.getItem('pcc_unlocked') === '1'; } catch (e) { return false; }
   });
+
   const unlock = () => {
-    try {
-      sessionStorage.setItem('pcc_unlocked', '1');
-    } catch (e) {}
+    try { sessionStorage.setItem('pcc_unlocked', '1'); } catch (e) {}
     setUnlocked(true);
   };
   const lock = () => {
-    try {
-      sessionStorage.removeItem('pcc_unlocked');
-    } catch (e) {}
+    try { sessionStorage.removeItem('pcc_unlocked'); } catch (e) {}
     setUnlocked(false);
   };
-  return /*#__PURE__*/React.createElement(IOSDevice, {
-    dark: true,
-    bare: true
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: '100%',
-      paddingTop: 'max(24px, env(safe-area-inset-top))',
-      boxSizing: 'border-box'
-    }
-  }, unlocked ? /*#__PURE__*/React.createElement(Dashboard, {
-    onLock: lock
-  }) : /*#__PURE__*/React.createElement(LockScreen, {
-    onUnlock: unlock
-  })));
+
+  let screen;
+  if (!unlocked) screen = React.createElement(LockScreen, { onUnlock: unlock });
+  else if (window.PCC.SAMPLE) screen = React.createElement(NoData, { onLock: lock });
+  else screen = React.createElement(Dashboard, { onLock: lock });
+
+  return React.createElement(IOSDevice, { dark: true },
+    React.createElement("div", {
+      style: {
+        height: '100%',
+        paddingTop: 'max(24px, env(safe-area-inset-top))',
+        boxSizing: 'border-box'
+      }
+    }, screen)
+  );
 }
+
 function mountApp() {
-  ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(App, null));
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App, null));
 }
-// Load real data (data.txt) if present, then mount. Falls back to sample.
+
+// Load real data (data.txt) first, then mount.
 if (window.PCC && typeof window.PCC.load === 'function') {
   window.PCC.load().finally(mountApp);
 } else {
   mountApp();
 }
-
   </script>
 </body>
 </html>
