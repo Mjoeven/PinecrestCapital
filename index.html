@@ -1059,6 +1059,13 @@ function Dashboard({ onLock }) {
     React.createElement("div", { style: { flex: 1, overflow: 'auto', padding: '0 22px' } },
 
       // headline number
+      React.createElement("div", { style: { marginTop: 30 } },
+        React.createElement("div", {
+          style: {
+            fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: 1.6,
+            textTransform: 'uppercase', color: 'rgba(255,255,255,0.42)'
+          }
+        }, "Net cumulative performance"),
         React.createElement("div", {
           style: {
             marginTop: 10, fontFamily: 'var(--sans)', fontWeight: 600, fontSize: 60,
